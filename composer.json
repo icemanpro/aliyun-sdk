@@ -23,7 +23,7 @@
     "autoload": {
 		 "psr-0": {
             "AliyunMNS\\":"src/AliyunMNS/",
-			""Aliyun_Log_":"src/AliyunLog/"
+			"Aliyun_Log_":"src/AliyunLog/"
         }
     },
     "minimum-stability": "stable"
