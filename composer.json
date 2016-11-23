@@ -1,9 +1,9 @@
 {
     "name": "icemanpro/aliyun-sdk",
-    "description": "阿里云消息服务",
+    "description": "阿里云SDK",
     "keywords": [
         "Aliyun",
-        "MNS"
+        "MNS","SDK","OSS","LOG"
     ],
     "homepage": "https://github.com/icemanpro/aliyun-sdk.git",
     "license": "MIT",
@@ -22,7 +22,8 @@
     },
     "autoload": {
 		 "psr-0": {
-            "AliyunMNS\\":"src/"
+            "AliyunMNS\\":"src/AliyunMNS/",
+			"Aliyun\\Log\\":"src/AliyunLog/"
         }
     },
     "minimum-stability": "stable"
