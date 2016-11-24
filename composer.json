@@ -21,10 +21,12 @@
 		"aliyuncs/oss-sdk-php": "~2.0"
     },
     "autoload": {
-		 "psr-0": {
-            "AliyunMNS\\":"src/AliyunMNS/",
-			"Aliyun_Log_":"src/AliyunLog/"
-        }
+		  "psr-0": {
+                "Aliyun_Log_": "src/AliyunLog/"
+            },
+            "psr-4":{
+                "AliyunMNS\\": "src/"
+            }
     },
     "minimum-stability": "stable"
 }
