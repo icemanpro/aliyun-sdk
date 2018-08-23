@@ -610,8 +610,8 @@ class RequestCore
 		curl_setopt($curl_handle, CURLOPT_MAXREDIRS, 5);
 		curl_setopt($curl_handle, CURLOPT_HEADER, true);
 		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($curl_handle, CURLOPT_TIMEOUT, 5184000);
-		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 120);
+		curl_setopt($curl_handle, CURLOPT_TIMEOUT, 50);
+		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 50);
 		curl_setopt($curl_handle, CURLOPT_NOSIGNAL, true);
 		curl_setopt($curl_handle, CURLOPT_REFERER, $this->request_url);
 		curl_setopt($curl_handle, CURLOPT_USERAGENT, $this->useragent);
@@ -760,22 +760,19 @@ class RequestCore
 	 */
 	public function process_response($curl_handle = null, $response = null)
 	{
-		// Accept a custom one if it's passed.
-		if ($curl_handle && $response)
-		{
-			$this->curl_handle = $curl_handle;
-			$this->response = $response;
-		}
-
+        if ($response)
+        {
+            $this->response = $response;
+        }
 		// As long as this came back as a valid resource...
-		if (is_resource($this->curl_handle))
+		if (is_resource($curl_handle))
 		{
 			// Determine what's what.
-			$header_size = curl_getinfo($this->curl_handle, CURLINFO_HEADER_SIZE);
+			$header_size = curl_getinfo($curl_handle, CURLINFO_HEADER_SIZE);
 			$this->response_headers = substr($this->response, 0, $header_size);
 			$this->response_body = substr($this->response, $header_size);
-			$this->response_code = curl_getinfo($this->curl_handle, CURLINFO_HTTP_CODE);
-			$this->response_info = curl_getinfo($this->curl_handle);
+			$this->response_code = curl_getinfo($curl_handle, CURLINFO_HTTP_CODE);
+			$this->response_info = curl_getinfo($curl_handle);
 
 			// Parse out the headers
 			$this->response_headers = explode("\r\n\r\n", trim($this->response_headers));
@@ -796,9 +793,9 @@ class RequestCore
 			$this->response_headers['_info'] = $this->response_info;
 			$this->response_headers['_info']['method'] = $this->method;
 
-			if ($curl_handle && $response)
+			if ($curl_handle && $this->response)
 			{
-				return new $this->response_class($this->response_headers, $this->response_body, $this->response_code, $this->curl_handle);
+				return new $this->response_class($this->response_headers, $this->response_body, $this->response_code, $curl_handle);
 			}
 		}
 

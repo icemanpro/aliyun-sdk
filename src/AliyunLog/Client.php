@@ -13,7 +13,7 @@ require_once realpath ( dirname ( __FILE__ ) . '/protocolbuffers.inc.php' );
 if(!defined('API_VERSION'))
     define('API_VERSION', '0.6.0');
 if(!defined('USER_AGENT'))
-    define('USER_AGENT', 'log-php-sdk-v-0.6.1');
+    define('USER_AGENT', 'log-php-sdk-v-0.6.0');
 
 /**
  * Aliyun_Log_Client class is the main class in the SDK. It can be used to
@@ -255,7 +255,7 @@ class Aliyun_Log_Client {
             $logGroup->addLogs ( $log );
         }
 
-        $body = Aliyun_Log_Util::toBytes ( $logGroup );
+        $body = Aliyun_Log_Util::toBytes( $logGroup );
         unset ( $logGroup );
         
         $bodySize = strlen ( $body );
@@ -281,6 +281,159 @@ class Aliyun_Log_Client {
     }
 
     /**
+     * create shipper service
+     * @param Aliyun_Log_Models_CreateShipperRequest $request
+     * return Aliyun_Log_Models_CreateShipperResponse
+     */
+    public function createShipper(Aliyun_Log_Models_CreateShipperRequest $request){
+        $headers = array();
+        $params = array();
+        $resource = "/logstores/".$request->getLogStore()."/shipper";
+        $project = $request->getProject () !== null ? $request->getProject () : '';
+        $headers["Content-Type"] = "application/json";
+
+        $body = array(
+            "shipperName" => $request->getShipperName(),
+            "targetType" => $request->getTargetType(),
+            "targetConfiguration" => $request->getTargetConfigration()
+        );
+        $body_str = json_encode($body);
+        $headers["x-log-bodyrawsize"] = strlen($body_str);
+        list($resp, $header) = $this->send("POST", $project,$body_str,$resource,$params,$headers);
+        $requestId = isset($header['x-log-requestid']) ? $header ['x-log-requestid'] : '';
+        $resp = $this->parseToJson($resp, $requestId);
+        return new Aliyun_Log_Models_CreateShipperResponse($resp, $header);
+    }
+
+    /**
+     * create shipper service
+     * @param Aliyun_Log_Models_UpdateShipperRequest $request
+     * return Aliyun_Log_Models_UpdateShipperResponse
+     */
+    public function updateShipper(Aliyun_Log_Models_UpdateShipperRequest $request){
+        $headers = array();
+        $params = array();
+        $resource = "/logstores/".$request->getLogStore()."/shipper/".$request->getShipperName();
+        $project = $request->getProject () !== null ? $request->getProject () : '';
+        $headers["Content-Type"] = "application/json";
+
+        $body = array(
+            "shipperName" => $request->getShipperName(),
+            "targetType" => $request->getTargetType(),
+            "targetConfiguration" => $request->getTargetConfigration()
+        );
+        $body_str = json_encode($body);
+        $headers["x-log-bodyrawsize"] = strlen($body_str);
+        list($resp, $header) = $this->send("PUT", $project,$body_str,$resource,$params,$headers);
+        $requestId = isset($header['x-log-requestid']) ? $header ['x-log-requestid'] : '';
+        $resp = $this->parseToJson($resp, $requestId);
+        return new Aliyun_Log_Models_UpdateShipperResponse($resp, $header);
+    }
+
+    /**
+     * get shipper tasks list, max 48 hours duration supported
+     * @param Aliyun_Log_Models_GetShipperTasksRequest $request
+     * return Aliyun_Log_Models_GetShipperTasksResponse
+     */
+    public function getShipperTasks(Aliyun_Log_Models_GetShipperTasksRequest $request){
+        $headers = array();
+        $params = array(
+            'from' => $request->getStartTime(),
+            'to' => $request->getEndTime(),
+            'status' => $request->getStatusType(),
+            'offset' => $request->getOffset(),
+            'size' => $request->getSize()
+        );
+        $resource = "/logstores/".$request->getLogStore()."/shipper/".$request->getShipperName()."/tasks";
+        $project = $request->getProject () !== null ? $request->getProject () : '';
+        $headers["x-log-bodyrawsize"] = 0;
+        $headers["Content-Type"] = "application/json";
+
+        list($resp, $header) = $this->send("GET", $project,null,$resource,$params,$headers);
+        $requestId = isset($header['x-log-requestid']) ? $header ['x-log-requestid'] : '';
+        $resp = $this->parseToJson($resp, $requestId);
+        return new Aliyun_Log_Models_GetShipperTasksResponse($resp, $header);
+    }
+
+    /**
+     * retry shipper tasks list by task ids
+     * @param Aliyun_Log_Models_RetryShipperTasksRequest $request
+     * return Aliyun_Log_Models_RetryShipperTasksResponse
+     */
+    public function retryShipperTasks(Aliyun_Log_Models_RetryShipperTasksRequest $request){
+        $headers = array();
+        $params = array();
+        $resource = "/logstores/".$request->getLogStore()."/shipper/".$request->getShipperName()."/tasks";
+        $project = $request->getProject () !== null ? $request->getProject () : '';
+
+        $headers["Content-Type"] = "application/json";
+        $body = $request->getTaskLists();
+        $body_str = json_encode($body);
+        $headers["x-log-bodyrawsize"] = strlen($body_str);
+        list($resp, $header) = $this->send("PUT", $project,$body_str,$resource,$params,$headers);
+        $requestId = isset($header['x-log-requestid']) ? $header ['x-log-requestid'] : '';
+        $resp = $this->parseToJson($resp, $requestId);
+        return new Aliyun_Log_Models_RetryShipperTasksResponse($resp, $header);
+    }
+
+    /**
+     * delete shipper service
+     * @param Aliyun_Log_Models_DeleteShipperRequest $request
+     * return Aliyun_Log_Models_DeleteShipperResponse
+     */
+    public function deleteShipper(Aliyun_Log_Models_DeleteShipperRequest $request){
+        $headers = array();
+        $params = array();
+        $resource = "/logstores/".$request->getLogStore()."/shipper/".$request->getShipperName();
+        $project = $request->getProject () !== null ? $request->getProject () : '';
+        $headers["x-log-bodyrawsize"] = 0;
+        $headers["Content-Type"] = "application/json";
+
+        list($resp, $header) = $this->send("DELETE", $project,null,$resource,$params,$headers);
+        $requestId = isset($header['x-log-requestid']) ? $header ['x-log-requestid'] : '';
+        $resp = $this->parseToJson($resp, $requestId);
+        return new Aliyun_Log_Models_DeleteShipperResponse($resp, $header);
+    }
+
+    /**
+     * get shipper config service
+     * @param Aliyun_Log_Models_GetShipperConfigRequest $request
+     * return Aliyun_Log_Models_GetShipperConfigResponse
+     */
+    public function getShipperConfig(Aliyun_Log_Models_GetShipperConfigRequest $request){
+        $headers = array();
+        $params = array();
+        $resource = "/logstores/".$request->getLogStore()."/shipper/".$request->getShipperName();
+        $project = $request->getProject () !== null ? $request->getProject () : '';
+        $headers["x-log-bodyrawsize"] = 0;
+        $headers["Content-Type"] = "application/json";
+
+        list($resp, $header) = $this->send("GET", $project,null,$resource,$params,$headers);
+        $requestId = isset($header['x-log-requestid']) ? $header ['x-log-requestid'] : '';
+        $resp = $this->parseToJson($resp, $requestId);
+        return new Aliyun_Log_Models_GetShipperConfigResponse($resp, $header);
+    }
+
+    /**
+     * list shipper service
+     * @param Aliyun_Log_Models_ListShipperRequest $request
+     * return Aliyun_Log_Models_ListShipperResponse
+     */
+    public function listShipper(Aliyun_Log_Models_ListShipperRequest $request){
+        $headers = array();
+        $params = array();
+        $resource = "/logstores/".$request->getLogStore()."/shipper";
+        $project = $request->getProject () !== null ? $request->getProject () : '';
+        $headers["x-log-bodyrawsize"] = 0;
+        $headers["Content-Type"] = "application/json";
+
+        list($resp, $header) = $this->send("GET", $project,null,$resource,$params,$headers);
+        $requestId = isset($header['x-log-requestid']) ? $header ['x-log-requestid'] : '';
+        $resp = $this->parseToJson($resp, $requestId);
+        return new Aliyun_Log_Models_ListShipperResponse($resp, $header);
+    }
+
+    /**
      * create logstore 
      * Unsuccessful opertaion will cause an Aliyun_Log_Exception.
      *
@@ -301,6 +454,7 @@ class Aliyun_Log_Client {
             "shardCount" => (int)($request -> getShardCount())
         );
         $body_str =  json_encode($body);
+        $headers["x-log-bodyrawsize"] = strlen($body_str);
         list($resp,$header)  = $this -> send("POST",$project,$body_str,$resource,$params,$headers);
         $requestId = isset ( $header ['x-log-requestid'] ) ? $header ['x-log-requestid'] : '';
         $resp = $this->parseToJson ( $resp, $requestId );
@@ -318,7 +472,6 @@ class Aliyun_Log_Client {
         $headers = array ();
         $params = array ();
         $project = $request->getProject () !== null ? $request->getProject () : '';
-        $headers["x-log-bodyrawsize"] = 0;
         $headers["Content-Type"] = "application/json";
         $body = array(
             "logstoreName" => $request -> getLogstore(),
@@ -327,6 +480,7 @@ class Aliyun_Log_Client {
         );
         $resource = '/logstores/'.$request -> getLogstore();
         $body_str =  json_encode($body);
+        $headers["x-log-bodyrawsize"] = strlen($body_str);
         list($resp,$header)  = $this -> send("PUT",$project,$body_str,$resource,$params,$headers);
         $requestId = isset ( $header ['x-log-requestid'] ) ? $header ['x-log-requestid'] : '';
         $resp = $this->parseToJson ( $resp, $requestId );
@@ -395,16 +549,16 @@ class Aliyun_Log_Client {
         $resp = $this->parseToJson ( $resp, $requestId );
         return new Aliyun_Log_Models_ListTopicsResponse ( $resp, $header );
     }
-    
+
     /**
      * Get histograms of requested query from log service.
      * Unsuccessful opertaion will cause an Aliyun_Log_Exception.
      *
      * @param Aliyun_Log_Models_GetHistogramsRequest $request the GetHistograms request parameters class.
      * @throws Aliyun_Log_Exception
-     * @return Aliyun_Log_Models_GetHistogramsResponse
+     * @return array(json body, http header)
      */
-    public function getHistograms(Aliyun_Log_Models_GetHistogramsRequest $request) {
+    public function getHistogramsJson(Aliyun_Log_Models_GetHistogramsRequest $request) {
         $headers = array ();
         $params = array ();
         if ($request->getTopic () !== null)
@@ -422,18 +576,33 @@ class Aliyun_Log_Client {
         list ( $resp, $header ) = $this->send ( "GET", $project, NULL, $resource, $params, $headers );
         $requestId = isset ( $header ['x-log-requestid'] ) ? $header ['x-log-requestid'] : '';
         $resp = $this->parseToJson ( $resp, $requestId );
-        return new Aliyun_Log_Models_GetHistogramsResponse ( $resp, $header );
+        return array($resp, $header);
     }
     
+    /**
+     * Get histograms of requested query from log service.
+     * Unsuccessful opertaion will cause an Aliyun_Log_Exception.
+     *
+     * @param Aliyun_Log_Models_GetHistogramsRequest $request the GetHistograms request parameters class.
+     * @throws Aliyun_Log_Exception
+     * @return Aliyun_Log_Models_GetHistogramsResponse
+     */
+    public function getHistograms(Aliyun_Log_Models_GetHistogramsRequest $request) {
+        $ret = $this->getHistogramsJson($request);
+        $resp = $ret[0];
+        $header = $ret[1];
+        return new Aliyun_Log_Models_GetHistogramsResponse ( $resp, $header );
+    }
+
     /**
      * Get logs from Log service.
      * Unsuccessful opertaion will cause an Aliyun_Log_Exception.
      *
      * @param Aliyun_Log_Models_GetLogsRequest $request the GetLogs request parameters class.
      * @throws Aliyun_Log_Exception
-     * @return Aliyun_Log_Models_GetLogsResponse
+     * @return array(json body, http header)
      */
-    public function getLogs(Aliyun_Log_Models_GetLogsRequest $request) {
+    public function getLogsJson(Aliyun_Log_Models_GetLogsRequest $request) {
         $headers = array ();
         $params = array ();
         if ($request->getTopic () !== null)
@@ -457,9 +626,60 @@ class Aliyun_Log_Client {
         list ( $resp, $header ) = $this->send ( "GET", $project, NULL, $resource, $params, $headers );
         $requestId = isset ( $header ['x-log-requestid'] ) ? $header ['x-log-requestid'] : '';
         $resp = $this->parseToJson ( $resp, $requestId );
-        return new Aliyun_Log_Models_GetLogsResponse ( $resp, $header );
+        return array($resp, $header);
+        //return new Aliyun_Log_Models_GetLogsResponse ( $resp, $header );
     }
     
+    /**
+     * Get logs from Log service.
+     * Unsuccessful opertaion will cause an Aliyun_Log_Exception.
+     *
+     * @param Aliyun_Log_Models_GetLogsRequest $request the GetLogs request parameters class.
+     * @throws Aliyun_Log_Exception
+     * @return Aliyun_Log_Models_GetLogsResponse
+     */
+    public function getLogs(Aliyun_Log_Models_GetLogsRequest $request) {
+        $ret = $this->getLogsJson($request);
+        $resp = $ret[0];
+        $header = $ret[1];
+        return new Aliyun_Log_Models_GetLogsResponse ( $resp, $header );
+    }
+
+    /**
+     * Get logs from Log service.
+     * Unsuccessful opertaion will cause an Aliyun_Log_Exception.
+     *
+     * @param Aliyun_Log_Models_GetProjectLogsRequest $request the GetLogs request parameters class.
+     * @throws Aliyun_Log_Exception
+     * @return array(json body, http header)
+     */
+    public function getProjectLogsJson(Aliyun_Log_Models_GetProjectLogsRequest $request) {
+        $headers = array ();
+        $params = array ();
+        if ($request->getQuery () !== null)
+            $params ['query'] = $request->getQuery ();
+        $project = $request->getProject () !== null ? $request->getProject () : '';
+        $resource = "/logs";
+        list ( $resp, $header ) = $this->send ( "GET", $project, NULL, $resource, $params, $headers );
+        $requestId = isset ( $header ['x-log-requestid'] ) ? $header ['x-log-requestid'] : '';
+        $resp = $this->parseToJson ( $resp, $requestId );
+        return array($resp, $header);
+        //return new Aliyun_Log_Models_GetLogsResponse ( $resp, $header );
+    }
+     /**
+     * Get logs from Log service.
+     * Unsuccessful opertaion will cause an Aliyun_Log_Exception.
+     *
+     * @param Aliyun_Log_Models_GetProjectLogsRequest $request the GetLogs request parameters class.
+     * @throws Aliyun_Log_Exception
+     * @return Aliyun_Log_Models_GetLogsResponse
+     */
+    public function getProjectLogs(Aliyun_Log_Models_GetProjectLogsRequest $request) {
+        $ret = $this->getProjectLogsJson($request);
+        $resp = $ret[0];
+        $header = $ret[1];
+        return new Aliyun_Log_Models_GetLogsResponse ( $resp, $header );
+    }
     
     /**
      * Get logs from Log service with shardid conditions.
@@ -529,7 +749,7 @@ class Aliyun_Log_Client {
         $headers = array();
         $project = $request->getProject()!==null?$request->getProject():'';
         $logstore = $request->getLogstore()!==null?$request->getLogstore():'';
-        $shardId = $request -> getShardId()!= null ? $request -> getShardId():-1;
+        $shardId = $request -> getShardId()!== null ? $request -> getShardId():-1;
         $midHash = $request -> getMidHash()!= null?$request -> getMidHash():"";
 
         $resource='/logstores/'.$logstore.'/shards/'.$shardId;
