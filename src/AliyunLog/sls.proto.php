@@ -272,7 +272,7 @@ class LogGroup {
           if ($len === false)
             throw new Exception('Protobuf::read_varint returned false');
           $limit-=$len;
-          $this->logs_[] = new Log($fp, $len);
+          $this->logs_[] = new Aliyun_Log($fp, $len);
           ASSERT('$len == 0');
           break;
         case 2:
