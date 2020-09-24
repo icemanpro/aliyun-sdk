@@ -16,7 +16,7 @@
 
     "require": {
         "php": ">=5.5.9",
-        "guzzlehttp/guzzle":"~6.1.0",
+        "guzzlehttp/guzzle":"~6.3.0",
 		"psr/http-message":"~1.0",
 		"aliyuncs/oss-sdk-php": "~2.0"
     },
